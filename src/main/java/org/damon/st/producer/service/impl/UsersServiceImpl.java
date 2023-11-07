@@ -8,6 +8,7 @@ import org.damon.st.producer.service.UsersService;
 import org.modelmapper.ModelMapper;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,6 +18,12 @@ public class UsersServiceImpl implements UsersService {
     private final RabbitTemplate rabbitTemplate;
     private final ModelMapper modelMapper;
     private final Jackson2JsonMessageConverter messageConverter;
+
+    @Value("${app.rabbitmq.exchangeName}")
+    private String exchangeName;
+
+    @Value("${app.rabbitmq.routingKey}")
+    private String routingKey;
 
     public void createUser(User user) {
         sendUserOperationToQueue("create", user);
@@ -36,7 +43,7 @@ public class UsersServiceImpl implements UsersService {
         userOperationDTO.setOperation(operation);
         userOperationDTO.setUser(userDto);
         rabbitTemplate.setMessageConverter(messageConverter);
-        rabbitTemplate.convertAndSend("user-info-exchange", "user-info", userOperationDTO);
+        rabbitTemplate.convertAndSend(exchangeName, routingKey, userOperationDTO);
     }
 
     private UserDto convertToUserDTO(User user) {

@@ -16,3 +16,8 @@ spring:
 
   profiles:
     active: "local"
+
+app:
+  rabbitmq:
+    exchangeName: '@app.rabbitmq.exchangeName@'
+    routingKey: '@app.rabbitmq.routingKey@'
