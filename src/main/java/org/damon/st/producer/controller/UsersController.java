@@ -4,10 +4,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.damon.st.producer.dto.UserDto;
 import org.damon.st.producer.exception.UsersException;
-import org.damon.st.producer.model.User;
+import org.damon.st.producer.mapstruct.UserMapper;
 import org.damon.st.producer.service.UsersService;
 import org.damon.st.producer.utils.ErrorUtils;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,7 @@ import java.util.List;
 @RequestMapping("/users")
 public class UsersController {
     private final UsersService usersService;
-    private final ModelMapper modelMapper;
+    private final UserMapper userMapper;
 
     @PostMapping
     public ResponseEntity<String> createUser(@RequestBody @Valid UserDto userDTO,
@@ -28,7 +27,7 @@ public class UsersController {
             List<String> errorMessages = ErrorUtils.getErrorMessages(bindingResult);
             throw new UsersException("Person has not been created: " + errorMessages);
         }
-        usersService.createUser(convertToUser(userDTO));
+        usersService.createUser(userMapper.toEntity(userDTO));
         return ResponseEntity.ok("User creation request accepted.");
     }
 
@@ -39,7 +38,7 @@ public class UsersController {
             List<String> errorMessages = ErrorUtils.getErrorMessages(bindingResult);
             throw new UsersException("Person has not been updated: " + errorMessages);
         }
-        usersService.updateUser(convertToUser(userDTO));
+        usersService.updateUser(userMapper.toEntity(userDTO));
         return ResponseEntity.ok("User update request accepted.");
     }
 
@@ -50,11 +49,7 @@ public class UsersController {
             List<String> errorMessages = ErrorUtils.getErrorMessages(bindingResult);
             throw new UsersException("Person has not been deleted: " + errorMessages);
         }
-        usersService.deleteUser(convertToUser(userDTO));
+        usersService.deleteUser(userMapper.toEntity(userDTO));
         return ResponseEntity.ok("User deletion request accepted.");
-    }
-
-    private User convertToUser(UserDto userDTO) {
-        return modelMapper.map(userDTO, User.class);
     }
 }
