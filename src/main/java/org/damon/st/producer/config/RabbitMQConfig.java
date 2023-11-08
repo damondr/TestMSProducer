@@ -12,12 +12,10 @@ public class RabbitMQConfig {
 
     @Value("${app.rabbitmq.exchangeName}")
     private String exchangeName;
-
     @Bean
     public Exchange userInfoExchange() {
         return new DirectExchange(exchangeName);
     }
-
     @Bean
     public Jackson2JsonMessageConverter messageConverter() {
         return new Jackson2JsonMessageConverter();
